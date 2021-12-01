@@ -960,7 +960,6 @@ class Master(server.AbstractServer):
 
     def __init__(self, **kwargs):
         """Class constructor.
-
         Parameters
         ----------
         kwargs
