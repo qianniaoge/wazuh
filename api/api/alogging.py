@@ -52,7 +52,7 @@ class AccessLogger(AbstractAccessLogger):
         if not hash_auth_context and request.path == RUN_AS_LOGIN_ENDPOINT:
             hash_auth_context = hashlib.blake2b(json.dumps(body).encode(), digest_size=16).hexdigest()
 
-        self.logger.info(f'{user}{f" {hash_auth_context} " if hash_auth_context else " "}{request.remote} '
+        self.logger.info(f'{user}{f" ({hash_auth_context}) " if hash_auth_context else " "}{request.remote} '
                          f'"{request.method} {request.path}" with parameters {json.dumps(query)} and body '
                          f'{json.dumps(body)} done in {time:.3f}s: {response.status}')
 
