@@ -37,7 +37,8 @@ with patch('wazuh.core.common.wazuh_uid'):
 cluster_items = {'node': 'master-node',
                  'intervals': {'worker': {'connection_retry': 1, "sync_integrity": 2, "sync_agent_info": 5},
                                "communication": {"timeout_receiving_file": 1, "timeout_dapi_request": 1,
-                                                 "max_zip_size": 1073741824, "min_zip_size": 52428800},
+                                                 "max_zip_size": 1073741824, "min_zip_size": 31457280,
+                                                 "zip_limit_tolerance": 0.2},
                                'master': {'max_locked_integrity_time': 0, 'timeout_agent_info': 0,
                                           'timeout_extra_valid': 0, 'process_pool_size': 10,
                                           'recalculate_integrity': 0}},
@@ -1236,7 +1237,8 @@ async def test_master_handler_sync_integrity_ok(decompress_files_mock, compare_f
                         compare_files_mock.return_value = ({"missing": {"key": "value"}, "shared": {"key": "value"},
                                                             "extra": "1", "extra_valid": "1"}, 0)
                         send_request_mock.return_value = Exception()
-                        master_handler.current_zip_limit = cluster_items['intervals']['communication']['max_zip_size']-1
+                        master_handler.current_zip_limit = \
+                            cluster_items['intervals']['communication']['max_zip_size'] - 1
                         assert await master_handler.sync_integrity("task_id", EventMock()) is None
 
                         decompress_files_mock.assert_called_once_with(TaskMock().filename, 'files_metadata.json')
