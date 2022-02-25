@@ -291,6 +291,8 @@ def compress_files(name, list_path, cluster_control_json=None, max_zip_size=None
     compress_level = get_cluster_items()['intervals']['communication']['compress_level']
     zip_file_path = path.join(common.wazuh_path, 'queue', 'cluster', name,
                               f'{name}-{datetime.utcnow().timestamp()}-{uuid4().hex}.zip')
+    if max_zip_size is None:
+        max_zip_size = get_cluster_items()['intervals']['communication']['max_zip_size']
 
     if not path.exists(path.dirname(zip_file_path)):
         mkdir_with_mode(path.dirname(zip_file_path))
