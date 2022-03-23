@@ -296,14 +296,14 @@ async def test_AbstractServer_check_clients_keepalive(loop_mock, sleep_mock):
                        return_value=logger):
                 abstract_server = AbstractServer(performance_test=1, concurrency_test=2, configuration={"test3": 3},
                                                  cluster_items={"test4": 4}, enable_ssl=True, logger=logger)
-                tester = "check_clients_keepalive"
+                tester = 4
                 abstract_server.cluster_items = {"intervals": {"master": {"check_worker_lastkeepalive": tester}}}
                 try:
                     await abstract_server.check_clients_keepalive()
                 except IndexError:
                     pass
                 mock_debug.assert_has_calls([call("Calculated."), call("Calculating.")], any_order=True)
-                sleep_mock.assert_called_once_with(tester)
+                sleep_mock.assert_any_call(tester)
 
                 abstract_server.cluster_items = {"intervals": {"master": {"max_allowed_time_without_keepalive": 0,
                                                                           "check_worker_lastkeepalive": tester}}}
@@ -340,6 +340,7 @@ async def test_AbstractServer_echo(loop_mock, sleep_mock):
             mock_info.assert_called_once_with("keepalive worker_test mock")
 
 
+@pytest.mark.asyncio
 @freeze_time("2022-01-01")
 @patch("asyncio.sleep", side_effect=IndexError)
 @patch("asyncio.get_running_loop", return_value=loop)
@@ -365,6 +366,7 @@ async def test_AbstractServer_performance_test(perf_counter_mock, loop_mock, sle
         mock_info.assert_called_once_with("Received size: 20 // Time: 0")
 
 
+@pytest.mark.asyncio
 @freeze_time("2022-01-01")
 @patch("asyncio.sleep", side_effect=IndexError)
 @patch("asyncio.get_running_loop", return_value=loop)
