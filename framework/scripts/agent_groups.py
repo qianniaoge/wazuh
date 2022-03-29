@@ -4,7 +4,6 @@
 # Created by Wazuh, Inc. <info@wazuh.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
-import logging
 from getopt import GetoptError, getopt
 from os.path import basename
 from signal import signal, SIGINT
@@ -22,12 +21,7 @@ debug = False
 
 # Functions
 def get_stdin(msg):
-    try:
-        stdin = raw_input(msg)
-    except:
-        # Python 3
-        stdin = input(msg)
-    return stdin
+    return input(msg)
 
 
 def signal_handler(n_signal, frame):
@@ -170,7 +164,7 @@ def create_group(group_id, quiet=False):
 
 def usage():
     msg = """
-    {0} [ -l [ -g group_id ] | -c -g group_id | -a (-i agent_id -g groupd_id | -g group_id) [-q] [-f] | -s -i agent_id | -S -i agent_id | -r (-g group_id | -i agent_id) [-q] ]
+    {0} [ -l [ -g group_id ] | -c -g group_id | -a (-i agent_id -g group_id | -g group_id) [-q] [-f] | -s -i agent_id | -S -i agent_id | -r (-g group_id | -i agent_id) [-q] ]
 
     Usage:
     \t-l                                    # List all groups
@@ -206,7 +200,7 @@ def usage():
 
 def invalid_option(msg=None):
     if msg:
-        print("Invalid options: {0}".format(msg))
+        print("Invalid options: {0}.".format(msg))
     else:
         print("Invalid options.")
 
@@ -215,7 +209,7 @@ def invalid_option(msg=None):
 
 
 def main():
-    # Capture Cntrl + C
+    # Capture Ctrl + C
     signal(SIGINT, signal_handler)
 
     # Parse arguments
@@ -223,7 +217,7 @@ def main():
                  'add-group': False, 'replace-group': False, 'show-group': False, 'show-sync': False,
                  'remove-group': False, 'quiet': False}
     try:
-        opts, args = getopt(argv[1:], "lcafsSri:g:qdh",
+        opts, _ = getopt(argv[1:], "lcafsSri:g:qdh",
                             ["list", "list-files", "add-group", "replace-group", "show-group", "show-sync",
                              "remove-group", "agent-id=", "group=", "quiet", "debug", "help"])
         arguments['n_args'] = len(opts)
@@ -283,7 +277,7 @@ def main():
     # -c -g group_id
     elif arguments['list-files']:
         show_group_files(arguments['group']) if arguments['group'] else invalid_option("Missing group.")
-    # -a (-i agent_id -g groupd_id | -g group_id) [-q] [-e]
+    # -a (-i agent_id -g group_id | -g group_id) [-q] [-e]
     elif arguments['add-group']:
         if arguments['agent-id'] and arguments['group']:
             set_group(arguments['agent-id'], arguments['group'], arguments['quiet'], arguments['replace-group'])
@@ -309,9 +303,7 @@ def main():
         invalid_option("Bad argument combination.")
 
 
-if __name__ == "__main__":
-    logger = logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
+def setup():
     try:
         cluster_config = read_config()
         executable_name = "agent_groups"
@@ -328,3 +320,7 @@ if __name__ == "__main__":
         print("Internal error: {0}".format(str(e)))
         if debug:
             raise
+
+
+if __name__ == "__main__":
+    setup()
