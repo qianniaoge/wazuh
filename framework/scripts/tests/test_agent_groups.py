@@ -20,6 +20,7 @@ def test_signal_handler(mock_exit):
 
 @patch('builtins.print')
 def test_show_groups(print_mock):
+    """Check that the show_groups function displays the groups properly."""
     class AgentMock:
         def __init__(self, q=None):
             self.testing_key = 'testing_value'
@@ -39,6 +40,7 @@ def test_show_groups(print_mock):
 
 @patch('builtins.print')
 def test_show_group(print_mock):
+    """Check that the show_group function shows the groups to which an agent belongs."""
     class AgentMock:
         counter = 1
         def __init__(self, agent_list=None):
@@ -61,9 +63,9 @@ def test_show_group(print_mock):
 
 @patch('builtins.print')
 def test_show_synced_agent(print_mock):
+    """Check that the synchronization status of an agent's groups is returned correctly."""
     class AgentMock:
         counter = 0
-
         def __init__(self, agent_list=None):
             self.testing_key = 'testing_value'
 
@@ -83,9 +85,9 @@ def test_show_synced_agent(print_mock):
 
 @patch('builtins.print')
 def test_show_agents_with_group(print_mock):
+    """Check that agents belonging to a certain group are returned."""
     class AgentMock:
         counter = 0
-
         def __init__(self, group_list=None, limit=None):
             assert group_list == ['testing']
             self.testing_key = 'testing_value'
@@ -107,9 +109,9 @@ def test_show_agents_with_group(print_mock):
 
 @patch('builtins.print')
 def test_show_group_files(print_mock):
+    """Check that the files of the specified group are returned."""
     class AgentMock:
         counter = 0
-
         def __init__(self, group_list=None, limit=None):
             assert group_list == ['testing']
             self.testing_key = 'testing_value'
@@ -130,6 +132,7 @@ def test_show_group_files(print_mock):
 
 @patch('builtins.print')
 def test_unset_group(print_mock):
+    """Check the unassignment of one or more groups for an agent."""
     class WazuhResultMock:
         def __init__(self, affected_items):
             self._affected_items = affected_items if int(affected_items[0]) > 0 else []
@@ -175,9 +178,9 @@ def test_unset_group(print_mock):
 
 @patch('builtins.print')
 def test_remove_group(print_mock):
+    """Check that the specified group is removed."""
     class AgentMock:
         counter = 0
-
         def __init__(self, group_list):
             self.testing_key = 'testing_value'
 
@@ -210,9 +213,9 @@ def test_remove_group(print_mock):
 
 @patch('builtins.print')
 def test_set_group(print_mock):
+    """Check that it adds the specified group to the agent information."""
     class AgentMock:
         counter = 0
-
         def __init__(self, agent_list, group_list, replace):
             self.testing_key = 'testing_value'
 
@@ -242,6 +245,7 @@ def test_set_group(print_mock):
 
 @patch('builtins.print')
 def test_create_group(print_mock):
+    """Check the successful group creation."""
     class AgentMock:
         def __init__(self, group_list):
             self.dikt = {'message': group_list}
@@ -310,6 +314,8 @@ def test_usage(basename_mock, print_mock):
 @patch('scripts.agent_groups.exit')
 @patch('builtins.print')
 def test_invalid_option(print_mock, exit_mock):
+    """Check the proper functioning of the function in charge of
+    notifying the user in case of error with the CLI options."""
     agent_groups.invalid_option()
     print_mock.assert_has_calls([call('Invalid options.'), call("Try '--help' for more information.\n")])
     exit_mock.assert_called_once_with(1)
@@ -501,7 +507,7 @@ def test_main(print_mock, usage_mock, show_groups_mock, show_agents_with_group_m
 
 @patch('builtins.print')
 def test_setup(print_mock):
-    """TODO"""
+    """Test the setup function."""
     # Change to debug mode
     agent_groups.debug = True
     with patch('scripts.agent_groups.read_config',
@@ -523,9 +529,13 @@ def test_setup(print_mock):
             read_config_mock.reset_mock()
             main_mock.reset_mock()
 
-        with patch('scripts.agent_groups.main', side_effect=IndexError) as main_mock:
-            with pytest.raises(IndexError):
+        class ExceptionMock(Exception):
+            def __init__(self, msg='Test exception', *args, **kwargs):
+                super().__init__(msg, *args, **kwargs)
+
+        with patch('scripts.agent_groups.main', side_effect=ExceptionMock) as main_mock:
+            with pytest.raises(ExceptionMock):
                 agent_groups.setup()
             read_config_mock.assert_called_once()
             main_mock.assert_called_once()
-            print_mock.assert_called_once_with(f"Internal error: ")
+            print_mock.assert_called_once_with(f"Internal error: Test exception")
