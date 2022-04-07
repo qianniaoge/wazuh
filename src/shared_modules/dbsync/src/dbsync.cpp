@@ -175,36 +175,58 @@ int dbsync_close_txn(const TXN_HANDLE txn)
 int dbsync_sync_txn_row(const TXN_HANDLE txn,
                         const cJSON*     js_input)
 {
+    log_message("Input json = " + std::string(cJSON_PrintUnformatted(js_input)));
+    log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
     auto retVal { -1 };
+    log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+
     std::string error_message;
+    log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
 
     if (!txn || !js_input)
     {
         error_message += "Invalid txn or json.";
+        log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+
     }
     else
     {
         try
         {
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+
             const std::unique_ptr<char, CJsonDeleter> spJsonBytes{cJSON_PrintUnformatted(js_input)};
-            PipelineFactory::instance().pipeline(txn)->syncRow(nlohmann::json::parse(spJsonBytes.get()));
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+            log_message("spJsonBytes.get() = " + std::string(spJsonBytes.get()));
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+            auto json_entry = nlohmann::json::parse(spJsonBytes.get());
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
+            PipelineFactory::instance().pipeline(txn)->syncRow(json_entry);
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
             retVal = 0;
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
         }
         catch (const DbSync::dbsync_error& ex)
         {
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
             error_message += "DB error, id: " + std::to_string(ex.id()) + ". " + ex.what();
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
             retVal = ex.id();
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
         }
         // LCOV_EXCL_START
         catch (...)
         {
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
             error_message += "Unrecognized error.";
+            log_message("File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__));
         }
 
         // LCOV_EXCL_STOP
     }
-
+    log_message(":" + std::to_string(__LINE__));
     log_message(error_message);
+    log_message(":" + std::to_string(__LINE__));
     return retVal;
 }
 

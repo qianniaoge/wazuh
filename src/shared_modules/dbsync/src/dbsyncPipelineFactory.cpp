@@ -61,6 +61,8 @@ namespace DbSync
             }
             void syncRow(const nlohmann::json& value) override
             {
+                std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
+
                 try
                 {
                     DBSyncImplementation::instance().syncRowData
@@ -70,16 +72,22 @@ namespace DbSync
                         value,
                         [this](ReturnTypeCallback resType, const nlohmann::json & resValue)
                     {
+                        std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
+
                         this->pushResult(SyncResult{resType, resValue});
+                        std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
+
                     }
                     );
                 }
                 catch (const DbSync::max_rows_error&)
                 {
+                    std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
                     pushResult(SyncResult{MAX_ROWS, value});
                 }
                 catch (const std::exception& ex)
                 {
+                    std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
                     SyncResult result;
                     result.first = DB_ERROR;
                     result.second = value;
@@ -166,11 +174,14 @@ namespace DbSync
     }
     const std::shared_ptr<IPipeline>& PipelineFactory::pipeline(const PipelineCtxHandle handle)
     {
+        std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
+
         std::lock_guard<std::mutex> lock{ m_contextsMutex };
         const auto& it
         {
             m_contexts.find(handle)
         };
+        std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
 
         if (it == m_contexts.end())
         {
@@ -179,6 +190,7 @@ namespace DbSync
                 INVALID_HANDLE
             };
         }
+                std::cout << "File = " + std::string(__FILE__) + ":" + std::to_string(__LINE__) << std::endl;
 
         return it->second;
     }
